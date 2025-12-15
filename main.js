@@ -192,6 +192,9 @@ function resetWords() {
 
 // Start Game
 startBtn.onclick = function () {
+  lvlsInput.forEach((input) => {
+    input.disabled = true;
+  });
   resetWords();
   isFirstWord = true;
 
@@ -213,9 +216,13 @@ restartBtn.onclick = function () {
   restartBtn.style.display = "none";
   bestScore.style.display = "none";
   input.disabled = false;
+  input.value = "";
   input.focus();
   finishMsg.innerHTML = "";
   upcomingWords.style.display = "flex";
+  lvlsInput.forEach((input) => {
+    input.disabled = true;
+  });
 };
 
 // WORD GENERATION
@@ -270,6 +277,9 @@ function startPlay() {
           tickTock.pause();
           tickTock.currentTime = 0;
           winSoundFunc();
+          lvlsInput.forEach((input) => {
+            input.disabled = false;
+          });
         }
       } else {
         finishMsg.innerHTML = "Game Over!";
@@ -283,6 +293,9 @@ function startPlay() {
         tickTock.pause();
         tickTock.currentTime = 0;
         lossSoundFunc();
+        lvlsInput.forEach((input) => {
+          input.disabled = false;
+        });
       }
     }
   }, 1000);
