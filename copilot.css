@@ -17,7 +17,6 @@
   --input-bg-color: #ffeaa7;
   --input-border-color: #e17055;
   --lvls-label-color: black;
-
 }
 
 /* =====================
@@ -38,7 +37,7 @@
   --input-color: #2d3436;
   --input-bg-color: #dfffe6;
   --input-border-color: #2ecc71;
-    --lvls-label-color: black;
+  --lvls-label-color: black;
 }
 
 /* =====================
@@ -63,8 +62,13 @@
   --input-color: white;
   --input-bg-color: #ff3b3b;
   --input-border-color: #141414;
-    --lvls-label-color: rgba(255, 255, 255, 0.826);
+  --lvls-label-color: rgba(255, 255, 255, 0.826);
 }
+
+.sound{
+  display: none;
+}
+
 html,
 body {
   font-family: Arial, Helvetica, sans-serif;
@@ -169,7 +173,7 @@ body {
   margin: 10px auto;
   padding: 10px 18px;
   border-radius: 10px;
- background: linear-gradient(135deg, var(--accent), var(--danger));
+  background: linear-gradient(135deg, var(--accent), var(--danger));
   color: #fff;
   font-weight: 700;
   cursor: pointer;
@@ -240,7 +244,6 @@ body {
   outline: none;
   transition: box-shadow 0.12s ease, border-color 0.12s ease;
   font-weight: 600;
-  text-transform: capitalize;
 }
 .input:focus {
   box-shadow: 0 10px 30px rgba(225, 112, 85, 0.3);
@@ -439,10 +442,10 @@ body {
     min-height: 110px;
     font-size: 1.8rem;
   }
-  .input::placeholder{
+  .input::placeholder {
     font-size: 14px;
   }
-  .best-score{
+  .best-score {
     width: 200px;
   }
   .control {

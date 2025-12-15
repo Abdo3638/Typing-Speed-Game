@@ -21,6 +21,9 @@ let timeLeftSpan = document.querySelector(".time span");
 let scoreGot = document.querySelector(".score .got");
 let scoreTotal = document.querySelector(".score .total");
 let finishMsg = document.querySelector(".finish");
+let winSound = document.querySelector(".win-sound");
+let lossSound = document.querySelector(".loss-sound");
+let tickTock = document.querySelector(".tick-tock");
 
 // Initial UI setup
 lvlNameSpan.innerHTML = defaultLevel;
@@ -41,6 +44,24 @@ let easyWords = [
   "desk",
   "wind",
   "pale",
+  "mine",
+  "code",
+  "same",
+  "nice",
+  "hole",
+  "aura",
+  "kick",
+  "Lame",
+  "body",
+  "moon",
+  "ink",
+  "game",
+  "tree",
+  "rock",
+  "fire",
+  "leaf",
+  "sun",
+  "war",
 ];
 let normalWords = [
   "array",
@@ -53,19 +74,85 @@ let normalWords = [
   "always",
   "nature",
   "quality",
+  "planet",
+  "forest",
+  "silver",
+  "camera",
+  "bridge",
+  "rocket",
+  "butter",
+  "orange",
+  "motion",
+  "pencil",
+  "fabric",
+  "castle",
+  "random",
+  "friend",
+  "window",
+  "stream",
+  "energy",
+  "shadow",
+  "animal",
+  "ground",
 ];
 let hardWords = [
-  "function",
-  "variable",
-  "algorithm",
-  "onepiece",
-  "dragonball",
-  "baseball",
-  "condition",
-  "stranger",
-  "powerful",
-  "exchange",
+  "journey",
+  "picture",
+  "library",
+  "freedom",
+  "fortune",
+  "machine",
+  "natural",
+  "passion",
+  "process",
+  "quality",
+  "capture",
+  "support",
+  "balance",
+  "network",
+  "diamond",
+  "history",
+  "science",
+  "musical",
+  "college",
+  "weather",
+  "teacher",
+  "student",
+  "project",
+  "monitor",
+  "program",
+  "feature",
+  "version",
+  "example",
+  "utility",
+  "article",
 ];
+
+// Keep original words safe
+const originalWords = {
+  Easy: [...easyWords],
+  Normal: [...normalWords],
+  Hard: [...hardWords],
+};
+
+// Current game words (working copy)
+let currentWords = [];
+
+// Setting up Game Sounds
+function winSoundFunc() {
+  winSound.currentTime = 0;
+  winSound.play();
+}
+
+function lossSoundFunc() {
+  lossSound.currentTime = 0;
+  lossSound.play();
+}
+function tickTockFunc() {
+  tickTock.pause();
+  tickTock.currentTime = 0;
+  tickTock.play();
+}
 
 // Level → Words mapping
 const wordsByLevel = { Easy: easyWords, Normal: normalWords, Hard: hardWords };
@@ -87,8 +174,27 @@ lvlsInput.forEach((input) => {
 // Disable Paste Event
 input.onpaste = () => false;
 
+// Reset Words Everytime The Game Starts
+
+function shuffleArray(arr) {
+  return arr
+    .map((word) => ({ word, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map((obj) => obj.word);
+}
+
+function resetWords() {
+  const level = lvlNameSpan.innerHTML;
+
+  // Shuffle words and take only 10
+  currentWords = shuffleArray(originalWords[level]).slice(0, 10);
+}
+
 // Start Game
 startBtn.onclick = function () {
+  resetWords();
+  isFirstWord = true;
+
   this.remove();
   input.disabled = false;
   input.focus();
@@ -98,22 +204,30 @@ startBtn.onclick = function () {
 
 // Restart The Game
 restartBtn.onclick = function () {
-  window.location.reload();
+  resetWords();
+  isFirstWord = true;
+  scoreGot.innerHTML = 0;
+
+  startPlay();
+  generateWords();
+  restartBtn.style.display = "none";
+  bestScore.style.display = "none";
+  input.disabled = false;
+  input.focus();
+  finishMsg.innerHTML = "";
+  upcomingWords.style.display = "flex";
 };
 
 // WORD GENERATION
 function generateWords() {
-  const currentLevel = lvlNameSpan.innerHTML;
-  const words = wordsByLevel[currentLevel];
+  const randomIndex = Math.floor(Math.random() * currentWords.length);
+  const randomWord = currentWords[randomIndex];
 
-  const randomIndex = Math.floor(Math.random() * words.length);
-  const randomWord = words[randomIndex];
-
-  words.splice(randomIndex, 1);
+  currentWords.splice(randomIndex, 1);
   theWord.textContent = randomWord;
 
   upcomingWords.innerHTML = "";
-  words.forEach((word) => {
+  currentWords.forEach((word) => {
     const div = document.createElement("div");
     div.textContent = word;
     upcomingWords.appendChild(div);
@@ -131,38 +245,44 @@ function startPlay() {
   timeLeftSpan.innerHTML = isFirstWord ? levelTime + 3 : levelTime;
 
   let timer = setInterval(() => {
+    tickTockFunc();
     timeLeftSpan.innerHTML--;
 
     if (Number(timeLeftSpan.innerHTML) === 0) {
       clearInterval(timer);
 
-      if (theWord.textContent === input.value) {
+      if (theWord.textContent.toLowerCase() === input.value.toLowerCase()) {
         input.value = "";
         scoreGot.innerHTML++;
 
-        const words = wordsByLevel[lvlNameSpan.innerHTML];
-        if (words.length > 0) {
+        if (currentWords.length > 0) {
           generateWords();
-          isFirstWord = false; // after the first word, reset flag
+          isFirstWord = false;
           startPlay();
         } else {
           finishMsg.innerHTML = "Congratulations You Won!";
           finishMsg.classList.add("good", "win");
-          upcomingWords.remove();
+          upcomingWords.style.display = "none";
           input.disabled = true;
           saveBestScore();
           getBestScore();
           addGlitter(finishMsg);
+          tickTock.pause();
+          tickTock.currentTime = 0;
+          winSoundFunc();
         }
       } else {
         finishMsg.innerHTML = "Game Over!";
         finishMsg.classList.add("bad");
-        upcomingWords.remove();
+        upcomingWords.style.display = "none";
         restartBtn.style.display = "block";
         bestScore.style.display = "block";
         input.disabled = true;
         saveBestScore();
         getBestScore();
+        tickTock.pause();
+        tickTock.currentTime = 0;
+        lossSoundFunc();
       }
     }
   }, 1000);
@@ -204,7 +324,6 @@ function applyTheme() {
     document.body.classList.add("theme-hard");
     let timebox = document.querySelector(".time");
     let scorebox = document.querySelector(".score");
-    g;
     timebox.style.color = "white";
     scorebox.style.color = "white";
   } else {
